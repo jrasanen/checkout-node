@@ -115,14 +115,25 @@ export const buildDemoParams: () => PaymentPayload = () => {
 };
 
 /*
- * MD5 digest string from an array of values
- * @param {array} array of values to calculate the md5 hash from.
- * @returns {string} Uppercase MD5 hash
+ * SHA256 digest string from an array of values
+ * @param {array} array of values to calculate the sha256 hash from.
+ * @returns {string} Uppercase SHA256 hash
  */
 export const digest: (a: string[]) => string =
   (values) =>
-    crypto.createHash(ALGO).update(values.join('+')).digest('hex').toUpperCase();
+    crypto
+      .createHash(ALGO)
+      .update(values.join('+'))
+      .digest('hex')
+      .toUpperCase();
 
+/*
+ * SHA256 hmac string from an array of values
+ * @param {array} array of values to calculate the sha256 hash from.
+ * @returns {string} Uppercase SHA256 hash
+ */
+export const hmacDigest: (arr: string[], sharedSecret: string) => string =
+  (arr, secret) => crypto.createHmac(ALGO, secret).update(arr.join('+')).digest('hex').toUpperCase();
 
 /*
  * Return list of values of given fields of an object
@@ -137,11 +148,26 @@ export const valuesFromPayload: (fields: string[]) => Function =
  * Get payload's MAC string
  * @param {object} values Payload to get mac from
  * @param {array} fields Fields required for mac
- * @returns {string} md5 mac
+ * @returns {string} SHA256 mac
  */
-export const mac: (v: PaymentPayload) => PaymentPayload =
-  (values) =>
-    R.merge(values, { MAC: digest(valuesFromPayload(macFields)(values)) });
+export const mac: (v: PaymentPayload, fields?: string[]) => PaymentPayload =
+  (values, fields) =>
+    R.merge(values, {
+      MAC: digest(valuesFromPayload((fields) ? fields : macFields)(values))
+    });
+
+/*
+ * Get payload's HMAC string
+ * @param {object} values Payload to get mac from
+ * @param {string} secret Shared secret for hmac
+ * @param {array} fields Fields required for mac
+ * @returns {string} SHA256 mac
+ */
+export const hmac: (v: PaymentPayload, secret: string, fields?: string[]) => PaymentPayload =
+  (values, secret, fields) =>
+    R.merge(values, {
+      MAC: hmacDigest(valuesFromPayload((fields) ? fields : macFields)(values), secret)
+    });
 
 /*
  * Get parameters for payload. Merges defaults with provided data.
@@ -152,6 +178,6 @@ export const params: (d: PaymentPayload) => PaymentPayload =
 /*
  * Get payload required for psp's payment wall
  * @param {object} input Post data
- * @returns {string} md5 mac
+ * @returns {string} SHA256 mac
  */
-export const getPayload: (data: PaymentPayload) => PaymentPayload =  R.pipe(params, mac);
+export const getPayload: (data: {}) => {} =  R.pipe(params, mac);

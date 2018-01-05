@@ -1,5 +1,7 @@
+import { poll } from './poll';
 import { open } from './wall';
 
 export {
-  open
+  open,
+  poll
 };

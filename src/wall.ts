@@ -14,7 +14,7 @@ interface Assoc { readonly [key: string]: string; }
  * @param {object} Post data, uses test data if no data provided
  * @returns {Promise<XML>} Payment wall object
  */
-export const open: (d?: Assoc | undefined) => PromiseLike<Assoc[]> = (openWallData) =>
+export const open: (postdata?: Assoc | undefined) => Promise<Assoc[]> = (openWallData) =>
   new Promise((ok, no) => {
     return request.post(PSP_URL).type('form')
       .send(getPayload(openWallData ? openWallData : buildDemoParams()))
