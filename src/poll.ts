@@ -36,7 +36,7 @@ export const poll: (params: PollPayload) => Promise<number> =
       request
         .post(POLL_URL)
         .type('form')
-        .send(utils.mac(data, R.keys(data)))
+        .send(utils.mac(R.keys(data), data))
         .then((response) => {
           if (response.text.indexOf('error') > -1) {
             no(response.text.trim());
