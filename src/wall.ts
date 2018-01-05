@@ -123,14 +123,14 @@ export const buildDemoParams: () => PaymentPayload = () => {
 /*
  * Get parameters for payload. Merges defaults with provided data.
  */
-export const params: (d: {}) => {} = R.merge(defaults);
+export const payloadParams: (d: {}) => {} = R.merge(defaults);
 
 /*
  * Get payload required for psp's payment wall
  * @param {object} input Post data
  * @returns {string} SHA256 mac
  */
-export const getPayload: (data: {}) => {} = R.pipe(params, R.curry(utils.mac)(macFields));
+export const getPayload: (data: {}) => {} = R.pipe(payloadParams, R.curry(utils.mac)(macFields));
 
 /*
  * Get Payment button wall

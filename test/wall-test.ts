@@ -30,8 +30,8 @@ describe('Utilities', () => {
   it('mac should return an md5', () =>
     utils.mac(['MAC'], { STAMP: 'my cat is just big boned' }).should.have.property('MAC'));
 
-  it('params should have default values', () => {
-    const result: wall.PaymentPayload = wall.params({ STAMP: 'pew says laser' });
+  it('payload params should have default values', () => {
+    const result: wall.PaymentPayload = wall.payloadParams({ STAMP: 'pew says laser' });
     result.should.have.property('EMAIL');
     result.should.have.property('STAMP', 'pew says laser');
   });
