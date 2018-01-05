@@ -1,7 +1,37 @@
 import * as crypto from 'crypto';
 import * as R from 'ramda';
 
-export interface Assoc { readonly [key: string]: string; }
+const TEST_MERCHANT_ID: number = 375917;
+
+export interface PaymentPayload {
+  readonly VERSION?: string;
+  readonly STAMP?: string;
+  readonly AMOUNT?: string;
+  readonly REFERENCE?: string;
+  readonly MESSAGE?: string;
+  readonly LANGUAGE?: 'FI';
+  readonly RETURN?: string;
+  readonly CANCEL?: string;
+  readonly REJECT?: string;
+  readonly DELAYED?: string;
+  readonly COUNTRY?: 'FIN';
+  readonly CURRENCY?: string;
+  readonly DEVICE?: 10;
+  readonly CONTENT?: string;
+  readonly TYPE?: string;
+  readonly ALGORITHM?: string;
+  readonly DELIVERY_DATE?: string;
+  readonly FIRSTNAME?: string;
+  readonly FAMILYNAME?: string;
+  readonly ADDRESS?: string;
+  readonly POSTCODE?: string;
+  readonly POSTOFFICE?: string;
+  readonly MAC?: string;
+  readonly EMAIL?: string;
+  readonly PHONE?: string;
+  readonly MERCHANT?: number;
+  readonly SECURITY_KEY?: string;
+}
 
 const ALGO: string = 'sha256';
 
@@ -34,7 +64,7 @@ const macFields: string[] = [
 ];
 
 // Default values if none provided
-const defaults: { readonly [key: string]: string|number } = {
+const defaults: PaymentPayload = {
   VERSION: '0001',
   STAMP: '',
   AMOUNT: '',
@@ -47,7 +77,7 @@ const defaults: { readonly [key: string]: string|number } = {
   DELAYED: '',
   COUNTRY: 'FIN',
   CURRENCY: 'EUR',
-  DEVICE: '10',
+  DEVICE: 10,
   CONTENT: '1',
   TYPE: '0',
   ALGORITHM: '3',
@@ -60,12 +90,12 @@ const defaults: { readonly [key: string]: string|number } = {
   MAC: '',
   EMAIL: '',
   PHONE: '',
-  MERCHANT: '375917',
+  MERCHANT: TEST_MERCHANT_ID,
   SECURITY_KEY: 'SAIPPUAKAUPPIAS'
 };
 
 // Get demo parameters
-export const buildDemoParams: () => Assoc = () => {
+export const buildDemoParams: () => PaymentPayload = () => {
   return {
     STAMP: (new Date()).getTime().toString(),
     REFERENCE: '0',
@@ -93,26 +123,35 @@ export const digest: (a: string[]) => string =
   (values) =>
     crypto.createHash(ALGO).update(values.join('+')).digest('hex').toUpperCase();
 
+
+/*
+ * Return list of values of given fields of an object
+ * @param {fields} fields to get from the object
+ * @param {payload} object to get values from
+ * @returns {array} string array of selected values
+ */
+export const valuesFromPayload: (fields: string[]) => Function =
+   (fields) => R.compose(R.values, R.pick(fields));
+
 /*
  * Get payload's MAC string
  * @param {object} values Payload to get mac from
  * @param {array} fields Fields required for mac
  * @returns {string} md5 mac
  */
-export const mac: (v: Assoc) => Assoc =
+export const mac: (v: PaymentPayload) => PaymentPayload =
   (values) =>
-    R.merge(values, { MAC: digest(macFields.map((e) => values[e])) });
+    R.merge(values, { MAC: digest(valuesFromPayload(macFields)(values)) });
 
 /*
  * Get parameters for payload. Merges defaults with provided data.
  */
-export const params: (d: Assoc) => Assoc =
-  (data) => R.merge(defaults, data);
+export const params: (d: PaymentPayload) => PaymentPayload =
+  R.merge(defaults);
 
 /*
  * Get payload required for psp's payment wall
  * @param {object} input Post data
  * @returns {string} md5 mac
  */
-export const getPayload: (d: {}) => Assoc =
-  (data) => R.pipe(params, mac)(data);
+export const getPayload: (data: PaymentPayload) => PaymentPayload =  R.pipe(params, mac);

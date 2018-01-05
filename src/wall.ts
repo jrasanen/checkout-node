@@ -20,8 +20,8 @@ export const open: (d?: Assoc | undefined) => PromiseLike<Assoc[]> = (openWallDa
       .send(getPayload(openWallData ? openWallData : buildDemoParams()))
       .then((resp) =>
         parse(resp.text, (err, res) => {
-          if (err != null) {
-            no(err);
+          if (err != null || res.p) {
+            (err) ? no(err) : no(res.p);
           } else {
             const buttons: {} = res.trade.payments.pop().payment.pop().banks.pop();
             // tslint:disable-next-line:no-any
