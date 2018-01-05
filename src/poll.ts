@@ -20,7 +20,6 @@ export interface PollPayload {
 
 export const poll: (params: PollPayload) => Promise<number> =
   (params) => {
-    // tslint:disable-next-line:no-any
     const data: PollPayload = {
       VERSION: params.VERSION,
       STAMP: params.STAMP,
