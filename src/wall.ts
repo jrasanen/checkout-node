@@ -139,9 +139,12 @@ export const getPayload: (data: {}) => {} = R.pipe(payloadParams, R.curry(utils.
  */
 export const open: (postdata?: Assoc | undefined) => Promise<Assoc[]> = (openWallData) =>
   new Promise((ok, no) => {
-    return request.post(PSP_URL).type('form')
+    return request
+      .post(PSP_URL)
+      .type('form') // Needs to be form post
       .send(getPayload(openWallData ? openWallData : buildDemoParams()))
       .then((resp) =>
+        // The legacy XML is kinda ugly, but this does the job parsing it
         parse(resp.text, (err, res) => {
           if (err != null || res.p) {
             (err) ? no(err) : no(res.p);
